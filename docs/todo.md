@@ -1,8 +1,8 @@
 
 # Features
 
-- [ ] make `create_exec_file()`  grant the executable permission.
-- [ ] wire up `create_files` and the lib `bashlib_create.bash`
+- [x] make `create_exec_file()`  grant the executable permission.
+- [x] wire up `create_files` and the lib `bashlib_create.bash`
 
 
 # Tests

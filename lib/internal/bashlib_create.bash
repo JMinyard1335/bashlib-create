@@ -36,7 +36,6 @@ create_exec_script() {
     echo -e "Creating tool script at \e[36m$full_path\e[0m..."
     write_exec_file "$dir" "$file"
     rc="$?"
-    
     return "$rc"
 }
 

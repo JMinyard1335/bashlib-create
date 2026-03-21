@@ -122,6 +122,7 @@ _${tool_identifier}_usage() {
 }
 
 ${tool_identifier}_parse() {
+    [[ "\$#" -eq 0 ]] && { echo "must give some options">&2 ; _${tool_identifier}_usage ; exit 1; }
     while [[ "\$#" -gt 0 ]]; do
         case "\$1" in
             -h|--help)
@@ -171,11 +172,10 @@ write_exec_file() {
     local file_name="${2:-'mytool'}"
     local tool_identifier=""
     local tool_identifier="$(_create_tool_identifier "$file_name")"
-    local file_ext="bash"
-    local full_path="$path/$file_name.$file_ext"
+    local full_path="$path/$file_name"
 
     cat > "$full_path"<<EOF
-#!/usr/bin/env/ bash
+#!/usr/bin/env bash
 
 ## Sourcing Logic DO NOT EDIT --------------------------------------------------
 # This section is used to determine the location of the script
@@ -190,12 +190,12 @@ ${tool_identifier}_script_dir="\$(dirname -- "\$${tool_identifier}_script_path")
 ${tool_identifier}_get_install_prefix() {
     local tool_path="\${1:-}"
 
-    if [[ "\$tool_path" = "\${HOME}/.local/bin" ]]; then
+    if [[ "\$tool_path" = "\${HOME}/.local/libexec/\${${tool_identifier}_tool_name}" ]]; then
         echo "\$HOME/.local"
-    elif [[ "\$tool_path" = "/usr/local/bin" ]]; then
+    elif [[ "\$tool_path" = "/usr/local/libexec/\${${tool_identifier}_tool_name}" ]]; then
         echo "/usr/local"
-    elif [[ -d "\$tool_path/lib" ]]; then
-        echo "\$tool_path"
+    elif [[ -d "\$tool_path/../lib" ]]; then
+        echo "\${tool_path}/.."
     fi
 }
 
@@ -229,9 +229,9 @@ _${tool_identifier}_usage() {
     echo
     echo "Consider using bashlib-style for a stylish help message."
     echo "https://github.com/JMinyard1335/bashlib-style"
-    echo its as easy as adding:
-    echo style="https://github.com/JMinyard1335/bashlib-style"
-    echo to your dependency section of the tool.toml file.
+    echo "its as easy as adding:"
+    echo 'style="https://github.com/JMinyard1335/bashlib-style"'
+    echo "to your dependency section of the tool.toml file."
     echo
     echo "Options:"
     echo "  -h, --help      Show this help message and exit"
@@ -239,6 +239,7 @@ _${tool_identifier}_usage() {
 }
 
 ${tool_identifier}_parse() {
+    [[ "\$#" -eq 0 ]] && { echo "must give some options">&2 ; _${tool_identifier}_usage ; exit 1; }
     while [[ "\$#" -gt 0 ]]; do
         case "\$1" in
             -h|--help)
@@ -272,6 +273,9 @@ if [[ "\${BASH_SOURCE[0]}" == "\${0}" ]]; then
 fi
 
 EOF
+
+    chmod +x "$full_path"
+    
 }
 
 # write_lib_file <path> <file_name>

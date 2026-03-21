@@ -25,6 +25,21 @@ create_lib_script() {
     return "$rc"
 }
 
+
+create_exec_script() {
+    local full_path="" file="" dir="" rc=""
+    
+    full_path="$(prompt_path)"
+    file="$(basename "${full_path%.*}")"
+    dir="$(dirname "${full_path}")"
+    
+    echo -e "Creating tool script at \e[36m$full_path\e[0m..."
+    write_exec_file "$dir" "$file"
+    rc="$?"
+    
+    return "$rc"
+}
+
 create_tool_script() {
     local full_path="" file="" dir="" rc=""
     
@@ -81,7 +96,6 @@ create_gitignore() {
     
     return "$rc"
 }
-
 
 # create_mkdirs <project_dir>
 # Creates a new project root and scaffold directories.

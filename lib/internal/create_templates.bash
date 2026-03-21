@@ -161,7 +161,118 @@ EOF
 # write_exe_file <path> <file_name>
 # Used to create a exec file found in
 # the libexec dir.
-write_exec_file() { return 1; }
+write_exec_file() {
+    if [[ "$#" -ne 2 ]]; then
+        print_error "write_lib_file: invalid argument count"
+        return 1
+    fi
+    
+    local path="${1:-.}"
+    local file_name="${2:-'mytool'}"
+    local tool_identifier=""
+    local tool_identifier="$(_create_tool_identifier "$file_name")"
+    local file_ext="bash"
+    local full_path="$path/$file_name.$file_ext"
+
+    cat > "$full_path"<<EOF
+#!/usr/bin/env/ bash
+
+## Sourcing Logic DO NOT EDIT --------------------------------------------------
+# This section is used to determine the location of the script
+# This section is used to determine the location of the script
+${tool_identifier}_tool_name=""
+${tool_identifier}_script_path="\$(realpath -- "\$0")"
+${tool_identifier}_script_dir="\$(dirname -- "\$${tool_identifier}_script_path")"
+
+# ${tool_identifier}_get_install_prefix <tool script directory>
+# Used to echo the install path prefix.
+# This is usually /usr/local or \$HOME/.local.
+${tool_identifier}_get_install_prefix() {
+    local tool_path="\${1:-}"
+
+    if [[ "\$tool_path" = "\${HOME}/.local/bin" ]]; then
+        echo "\$HOME/.local"
+    elif [[ "\$tool_path" = "/usr/local/bin" ]]; then
+        echo "/usr/local"
+    elif [[ -d "\$tool_path/lib" ]]; then
+        echo "\$tool_path"
+    fi
+}
+
+# ${tool_identifier}_get_lib <install prefix> <tool>
+# echos the proper lib path based on the install prefix and tool name.
+# needed for proper sourcing of lib files based on where the tool is installed.
+${tool_identifier}_get_lib() {
+    local prefix="\${1:-}"
+    local tool="\${2:-}"
+
+    if [[ -z "\$prefix" ]]; then
+        echo ""
+        return 1
+    fi
+
+    if [[ "\$prefix" = "\$HOME/.local" || "\$prefix" = "/usr/local" ]]; then
+        echo "\${prefix}/lib/\${tool}"
+    else
+        echo "\${prefix}/lib"
+    fi
+}
+
+${tool_identifier}_install_prefix="\$(${tool_identifier}_get_install_prefix "\$${tool_identifier}_script_dir")"
+${tool_identifier}_lib_dir="\$(${tool_identifier}_get_lib "\$${tool_identifier}_install_prefix" "\$${tool_identifier}_tool_name")"
+# End of source section --------------------------------------------------------
+
+${tool_identifier}_version="0.1.0"
+
+_${tool_identifier}_usage() {
+    echo "Usage: ${tool_identifier} [options]"
+    echo
+    echo "Consider using bashlib-style for a stylish help message."
+    echo "https://github.com/JMinyard1335/bashlib-style"
+    echo its as easy as adding:
+    echo style="https://github.com/JMinyard1335/bashlib-style"
+    echo to your dependency section of the tool.toml file.
+    echo
+    echo "Options:"
+    echo "  -h, --help      Show this help message and exit"
+    echo "  -v, --version   Show the version number and exit"
+}
+
+${tool_identifier}_parse() {
+    while [[ "\$#" -gt 0 ]]; do
+        case "\$1" in
+            -h|--help)
+                _${tool_identifier}_usage
+                exit 0
+                ;;
+            -v|--version)
+                echo "$tool_name version \$${tool_identifier}_version"
+                exit 0
+                ;;
+            *)
+                echo "Unknown option: \$1" >&2
+                _${tool_identifier}_usage
+                exit 1
+                ;;
+        esac
+        shift
+    done
+}
+
+
+# Put any tool specific setup code here
+${tool_identifier}_main() {
+    ${tool_identifier}_parse "\$@"
+}
+
+
+# Main is only called if this script is run directly, if it is sourced then main is not called.
+if [[ "\${BASH_SOURCE[0]}" == "\${0}" ]]; then
+    ${tool_identifier}_main "\$@"
+fi
+
+EOF
+}
 
 # write_lib_file <path> <file_name>
 # Used to create a lib file found in lib

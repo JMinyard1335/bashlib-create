@@ -126,7 +126,7 @@ create_parse() {
                 ;;
 	    project) shift; "${create_libexec_dir}/create_project" "$@"; exit 0;;
 	    script) shift;  "${create_libexec_dir}/create_script" "$@"; exit 0;;
-	    file) shift; "${create_libexec_dir}/create_file" "$@";;
+	    file) shift; "${create_libexec_dir}/create_file" "$@"; exit 0;;
             *)
                 echo "Unknown option: $1" >&2
                 _create_usage

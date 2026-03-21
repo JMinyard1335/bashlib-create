@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+
+## Sourcing Logic DO NOT EDIT --------------------------------------------------
+# This section is used to determine the location of the script
+# This section is used to determine the location of the script
+create_file_tool_name=""
+create_file_script_path="$(realpath -- "$0")"
+create_file_script_dir="$(dirname -- "$create_file_script_path")"
+
+# create_file_get_install_prefix <tool script directory>
+# Used to echo the install path prefix.
+# This is usually /usr/local or $HOME/.local.
+create_file_get_install_prefix() {
+    local tool_path="${1:-}"
+
+    if [[ "$tool_path" = "${HOME}/.local/libexec/${create_file_tool_name}" ]]; then
+        echo "$HOME/.local"
+    elif [[ "$tool_path" = "/usr/local/libexec/${create_file_tool_name}" ]]; then
+        echo "/usr/local"
+    elif [[ -d "$tool_path/../lib" ]]; then
+        echo "${tool_path}/.."
+    fi
+}
+
+# create_file_get_lib <install prefix> <tool>
+# echos the proper lib path based on the install prefix and tool name.
+# needed for proper sourcing of lib files based on where the tool is installed.
+create_file_get_lib() {
+    local prefix="${1:-}"
+    local tool="${2:-}"
+
+    if [[ -z "$prefix" ]]; then
+        echo ""
+        return 1
+    fi
+
+    if [[ "$prefix" = "$HOME/.local" || "$prefix" = "/usr/local" ]]; then
+        echo "${prefix}/lib/${tool}"
+    else
+        echo "${prefix}/lib"
+    fi
+}
+
+create_file_install_prefix="$(create_file_get_install_prefix "$create_file_script_dir")"
+create_file_lib_dir="$(create_file_get_lib "$create_file_install_prefix" "$create_file_tool_name")"
+# End of source section --------------------------------------------------------
+
+source "${HOME}/.local/lib/style/bashlib_style.bash"
+source "${create_file_lib_dir}"/internal/bashlib_create.bash
+
+create_file_version="0.1.0"
+
+_create_file_usage() {
+    helpmenu_print_title "Bashlib Create File"
+    helpmenu_print_subtitle "Used to generate new file templates"
+    echo
+    helpmenu_print_header "Description"
+    echo -e "Used to generate new file templates:"
+    echo
+    echo -e "\t- README"
+    echo -e "\t- tool.toml"
+    echo -e "\t- git ignore"
+    echo 
+    helpmenu_print_header "Usage"
+    echo "Usage: create file  [options]"
+    echo
+    helpmenu_print_header "Options"
+    helpmenu_print_option "-h | --help" "Show this help message and exit."
+    helpmenu_print_option "-v | --version" "Show the version number and exit."
+    helpmenu_print_option "-t | --toml" "creates a tool.toml config file."
+    helpmenu_print_option "-i | --ignore" "creates a git ignore template file."
+    helpmenu_print_option "-r | --readme" "creates a README.md template"
+    echo
+    helpmenu_print_header "Examples"
+    helpmenu_print_example "create file " "  --help"
+    helpmenu_print_example "create file " "  --toml"
+    helpmenu_print_example "create file " "  --readme'"
+    echo
+}
+
+create_file_parse() {
+    [[ "$#" -eq 0 ]] && { print_error "must give some options"; _create_file_usage ; exit 1; }
+    while [[ "$#" -gt 0 ]]; do
+        case "$1" in
+            -h|--help)
+                _create_file_usage
+                exit 0
+                ;;
+            -v|--version)
+                println_tag "" "version" "$create_file_version"
+                exit 0
+                ;;
+	    -r|--readme) shift; create_readme ;;
+	    -i|--ignore) shift; create_gitignore ;;
+	    -t|--toml) shift; create_tool_toml ;;
+            *)
+                print_error "Unknown option: $1"
+                _create_file_usage
+                exit 1
+                ;;
+        esac
+        shift
+    done
+}
+
+
+# Put any tool specific setup code here
+create_file_main() {
+    create_file_parse "$@"
+}
+
+
+# Main is only called if this script is run directly, if it is sourced then main is not called.
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    create_file_main "$@"
+fi
+

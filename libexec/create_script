@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+# Used to create full bash projects.
+#
+# When creating via CLI flags the name and tool flags are required
+
+
+create_script_tool_name="create"
+create_script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+create_script_lib_dir=""
+
+if [[ "$create_script_dir" == "${HOME}/.local/libexec/${create_script_tool_name}" ]]; then
+    create_script_lib_dir="${HOME}/.local/lib/${create_script_tool_name}"
+elif [[ "$create_script_dir" == "/usr/local/libexec/${create_script_tool_name}" ]]; then
+    create_script_lib_dir="/usr/local/lib/${create_script_tool_name}"
+elif [[ -d "${create_script_dir}/../lib" ]]; then
+    create_script_lib_dir="${create_script_dir}/../lib"
+else
+    printf '\e[1;31m[Error]\e[0m: Unable to locate the %s library files.\n' \
+           "${create_script_tool_name}" >&2
+    exit 1
+fi
+
+source "${create_script_lib_dir}"/internal/bashlib_create.bash
+source "$HOME"/.local/lib/style/bashlib_style.bash
+
+create_script_version="0.1.0"
+
+create_script_usage() {
+    helpmenu_print_title "Bashlib Create Script"
+    helpmenu_print_subtitle "Used to generate a new bash script."
+    echo
+    helpmenu_print_header "Description"
+    echo -e "Used to generate new bash scripts with templates. These templates come with:"
+    echo -e "\t- Source Guards"
+    echo -e "\t- Basic Parsing Logic"
+    echo -e "\t- Proper Sourcing of Lib and Libexec files"
+    echo -e "\t- Main function setup"
+    echo 
+    helpmenu_print_header "Usage"
+    echo "Usage: create [options]"
+    echo
+    helpmenu_print_header "Options"
+    helpmenu_print_option "-h | --help" "Show this help message and exit."
+    helpmenu_print_option "-v | --version" "Show the version number and exit."
+    helpmenu_print_option "-t | --tool" "Creates a new tool script (interactive)"
+    helpmenu_print_option "-l | --lib" "Creates a new library script (interactive)"
+    helpmenu_print_option "-e | --exec" "Creates a new executable script (interactive)"
+    echo
+    helpmenu_print_header "Examples"
+    helpmenu_print_example "create script --tool"
+    helpmenu_print_example "create script --lib"
+    helpmenu_print_example "create script --exec"
+    echo
+}
+
+
+create_script_parse() {
+    local p_name="" t_name="" a_name="" repo="" desc="" project_dir=""
+    [[ "$#" -eq 0 ]] && { print_error "must give some options"; create_script_usage ; exit 1; }
+    while [[ "$#" -gt 0 ]]; do
+        case "$1" in
+            -h|--help)
+                create_script_usage
+                exit 0
+                ;;
+            -v|--version)
+		        println_tag "$style_cyan" "Create Project Version" "$create_script_version"
+                exit 0
+                ;;
+            -t|--tool) create_tool_script; exit 0;;
+            -l|--lib) create_lib_script; exit 0;;
+            -e|--exec) create_exec_script; exit 0;;
+            *)
+                echo "Unknown option: $1" >&2
+                create_script_usage
+                exit 1
+                ;;
+        esac
+    done
+
+	[[ -z "$t_name" ]] && { print_error "--tool must be given if making a project with flags." ; exit 1; }
+	[[ -z "$p_name" ]] && { print_error "--name must be given if making a project with flags." ; exit 1; }
+	project_dir="$(pwd)/$p_name"
+	echo -e "Creating project in \e[36m$project_dir\e[0m..."
+	
+	create_mkdirs "$project_dir" || return 1
+	create_touch_files "$project_dir" "$t_name" "$a_name" "$repo" "$desc" || return 1
+}
+
+
+# Put any tool specific setup code here
+create_script_main() {
+    create_script_parse "$@"
+}
+
+
+# Main is only called if this script is run directly, if it is sourced then main is not called.
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    create_script_main "$@"
+fi
+

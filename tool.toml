@@ -3,7 +3,7 @@ tool = "create"
 project = "bashlib-create"
 version = "0.1.0"
 author = "Jachin Minyard"
-repo = "https://github.com/user/repo"
+repo="https://github.com/JMinyard1335/bashlib-create"
 description = "A bashlib tool that creates template (files, scritps, projects)."
 
 [directories]

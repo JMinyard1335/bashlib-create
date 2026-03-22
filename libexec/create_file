@@ -3,7 +3,7 @@
 ## Sourcing Logic DO NOT EDIT --------------------------------------------------
 # This section is used to determine the location of the script
 # This section is used to determine the location of the script
-create_file_tool_name=""
+create_file_tool_name="create"
 create_file_script_path="$(realpath -- "$0")"
 create_file_script_dir="$(dirname -- "$create_file_script_path")"
 
@@ -43,10 +43,13 @@ create_file_get_lib() {
 
 create_file_install_prefix="$(create_file_get_install_prefix "$create_file_script_dir")"
 create_file_lib_dir="$(create_file_get_lib "$create_file_install_prefix" "$create_file_tool_name")"
+echo "$create_file_script_dir"
+echo "$create_file_install_prefix"
+echo "$create_file_lib_dir"
 # End of source section --------------------------------------------------------
 
 source "${HOME}/.local/lib/style/bashlib_style.bash"
-source "${create_file_lib_dir}"/internal/bashlib_create.bash
+source "${create_file_lib_dir}/bashlib-create.bash"
 
 create_file_version="0.1.0"
 
@@ -70,6 +73,7 @@ _create_file_usage() {
     helpmenu_print_option "-t | --toml" "creates a tool.toml config file."
     helpmenu_print_option "-i | --ignore" "creates a git ignore template file."
     helpmenu_print_option "-r | --readme" "creates a README.md template"
+    helpmenu_print_option "-c | --contrib" "creates CONTRIBUTING.md template"
     echo
     helpmenu_print_header "Examples"
     helpmenu_print_example "create file " "  --help"
@@ -93,6 +97,7 @@ create_file_parse() {
 	    -r|--readme) shift; create_readme ;;
 	    -i|--ignore) shift; create_gitignore ;;
 	    -t|--toml) shift; create_tool_toml ;;
+	    -c|--contrib) shift; create_contributing ;;
             *)
                 print_error "Unknown option: $1"
                 _create_file_usage

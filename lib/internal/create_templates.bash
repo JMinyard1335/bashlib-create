@@ -33,7 +33,7 @@ write_tool_file() {
     local tool_identifier="$(_create_tool_identifier "$tool_name")"
 
     echo -e "Creating tool file at \e[36m$path/$tool_name\e[0m..."
-    cat > "$path/$tool_name"  << EOF
+    cat > "$path/$tool_name"  <<-EOF
 #!/usr/bin/env bash
 # Description: A brief description of what the tool does.
 
@@ -174,7 +174,7 @@ write_exec_file() {
     local tool_identifier="$(_create_tool_identifier "$file_name")"
     local full_path="$path/$file_name"
 
-    cat > "$full_path"<<EOF
+    cat > "$full_path"<<-EOF
 #!/usr/bin/env bash
 
 ## Sourcing Logic DO NOT EDIT --------------------------------------------------
@@ -293,7 +293,7 @@ write_lib_file() {
     local file_ext="bash"
     local full_path="$path/$file_name.$file_ext"
 
-    cat > "$full_path" << EOF
+    cat > "$full_path" <<-EOF
 #!/usr/bin/env bash
 # This is a lib file for $file_name. Put any functions that you want to use in the tool script here.
 
@@ -328,7 +328,7 @@ write_readme() {
     local full_path="$path/$file_name.$file_ext"
 
     echo -e "Creating README file at \e[36m$full_path\e[0m..."
-    cat > "$full_path" <<EOF
+    cat > "$full_path" <<-EOF
 # ${tool_name}
 
 Created by bashlib installer. Place a description of your project here.
@@ -399,7 +399,7 @@ write_tool_toml() {
     local full_path="$path/tool.toml"
 
     echo -e "Creating tool.toml file at \e[36m$full_path\e[0m..."
-    cat > "$full_path" <<EOF
+    cat > "$full_path" <<-EOF
 [project]
 tool = "${tool_name}"
 project = "${project_name}"
@@ -417,6 +417,114 @@ man = "man"
 EOF
 }
 
+
+# write_contributing_md <path> <repo> <project_name> <tool_name>
+write_contributing_md() {
+    local path="" repo="" p_name="" tool_name="" full_path=""
+    if [[ "$#" -ne 4 ]]; then
+	print_error "write_contributing_md: invalid argument count"
+	return 1
+    fi
+
+    path="${1:-.}"
+    repo="${2:-}"
+    p_name="${3:-my_project}"
+    t_name="${4:-my_tool}"
+    full_path="${path}/CONTRIBUTING.md"
+    
+    print_log "creating CONTRIBUTING.md at \e[36m${full_path}\e[0m"
+    cat > "$full_path"<<-EOF
+# Contributing to ${p_name}
+
+Thanks for your interest in improving \`${p_name}\`.
+
+## Ways To Contribute
+
+- Report bugs and unexpected behavior.
+- Suggest or implement install/remove/update/create workflow improvements.
+- Improve docs and usage examples.
+- Add tests and edge-case coverage.
+
+## Development Setup
+
+\`\`\`bash
+git clone "${repo}"
+cd ${p_name}
+chmod +x ./${t_name}
+./${t_name} help
+\`\`\`
+
+## Project Layout
+
+- \`${t_name}\`: top-level command dispatcher.
+- \`lib/\`: sourceable library files.
+- \`lib/internal/\`: ${t_name} internals and shared helpers.
+- \`libexec/\`: subcommand executables.
+- \`test/\`: fail-first test suite and test helpers.
+
+## Coding Guidelines
+
+- Keep scripts Bash-focused and portable.
+- Preserve existing naming patterns (\`${p_name}_*\`, \`${t_name}_*\`, \`_${t_name}_*\`).
+- Keep scripts you execute extensionless; scripts you source should be \`*.bash\`.
+- Prefer small, clear functions.
+- Quote variables unless word splitting is explicitly needed.
+- Keep CLI help text and docs in sync with behavior.
+
+## Testing Checklist
+
+Before opening a pull request, run:
+
+\`\`\`bash
+./${t_name} help
+./test/test_all.bash
+\`\`\`
+
+If your change affects parsing or error handling, test at least one invalid input path.
+
+## Pull Request Notes
+
+- Keep PRs focused (one feature/fix per PR when possible).
+- Explain why the change is needed.
+- List behavior changes and any CLI output changes.
+- Update \`README.md\`, \`INSTALL.md\`, and command help text when behavior or setup changes.
+- For Major Changes and New Features add a Section to the [change log](docs/CHANGELOG.md).
+
+## Commit Message Suggestions
+
+Use short, imperative commit messages, for example:
+
+- \`fix install arg parsing\`
+- \`add install guide\`
+- \`improve update error output\`
+
+## AI-Assisted Contributions
+
+AI tools are welcome for drafting code, docs, tests, and refactors.
+Contributors remain fully responsible for all submitted changes.
+
+### Requirements
+
+- Verify behavior manually before opening a PR.
+- Run the project checklist:
+	- \`./${t_name} help\`
+	- \`./test/test_all.bash\`
+- Ensure generated code matches project conventions (\`${p_name}_*\`, \`${t_name}_*\`, extensionless executables, \`*.bash\` source files).
+- Do not include secrets, tokens, private keys, or private/internal code in prompts.
+- Do not copy copyrighted or proprietary code verbatim from external sources.
+- Keep PRs understandable: explain what changed and why, not just "AI generated this."
+- Update \`README.md\` and \`INSTALL.md\` when behavior or setup changes.
+- If AI was used significantly, briefly disclose it in the PR description (for example: "AI-assisted drafting, manually reviewed and tested").
+
+### Not Acceptable
+
+- Submitting unreviewed AI output.
+- Large AI-generated changes without tests or explanation.
+- Output that adds unnecessary complexity or breaks existing UX/help text.
+
+EOF
+
+}
 
 ## Helpers --------------------------------------------------------------------------------
 

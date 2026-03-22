@@ -96,6 +96,20 @@ create_gitignore() {
     return "$rc"
 }
 
+create_contributing() {
+    local path="" repo="" tool="" project="" rc=""
+
+    path="$(prompt_dir)"
+    repo="$(prompt_repo)"
+    tool="$(prompt_tool)"
+    project="$(prompt_project)"
+
+    write_contributing_md "$path" "$repo" "$project" "$tool"
+    rc="$?"
+    
+    return "$rc"
+}
+
 # create_mkdirs <project_dir>
 # Creates a new project root and scaffold directories.
 create_mkdirs() {

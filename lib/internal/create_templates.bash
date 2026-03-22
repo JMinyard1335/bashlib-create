@@ -112,9 +112,9 @@ _${tool_identifier}_usage() {
     echo
     echo "Consider using bashlib-style for a stylish help message."
     echo "https://github.com/JMinyard1335/bashlib-style"
-    echo its as easy as adding:
-    echo style="https://github.com/JMinyard1335/bashlib-style"
-    echo to your dependency section of the tool.toml file.
+    echo "its as easy as adding:"
+    echo style="https://github.com/JMinyard1335/bashlib-style"'
+    echo "to your dependency section of the tool.toml file."
     echo
     echo "Options:"
     echo "  -h, --help      Show this help message and exit"

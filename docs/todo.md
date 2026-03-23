@@ -4,7 +4,6 @@
 - [x] make `create_exec_file()`  grant the executable permission.
 - [x] wire up `create_files` and the lib `bashlib_create.bash`
 
-
 # Tests
 
 - [ ] validate the output of the write template scripts
@@ -17,9 +16,9 @@
 
 # Docs
 
-- [ ] fill out the API in the API.md
+- [x] fill out the API in the API.md
 - [ ] fill out the install procedure in INSTALL.md
-- [ ] fill out the CONTRIBUTING.md
-- [ ] write out a readme.
-- [ ] add the MIT license
+- [x] fill out the CONTRIBUTING.md
+- [x] write out a readme.
+- [x] add the MIT license
 

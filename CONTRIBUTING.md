@@ -1,4 +1,4 @@
-# Contributing to bashlib-installer
+# Contributing to bashlib-create
 
 Thanks for your interest in improving `bashlib-create`.
 
